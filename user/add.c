@@ -2,35 +2,10 @@
 #include "user/user.h"
 #define MAX_BUF_SIZE 100
 int main(int argc, char *argv[]) {
-  char c;
-  int i;
-  int pos = -1;
-  char buf[MAX_BUF_SIZE];
-  for (i = 0;;) {
-    if (i >= sizeof(buf)) {
-      write(2, "Buffer overflow\n", 16);
-      exit(1);
-    }
-    int cc = read(0, &c, 1);
-    if (c == ' ')
-      pos = i;
-    if (cc != 1) {
-      write(2, "Read fail\n", 10);
-      exit(1);
-    }
-    buf[i++] = c;
-    if (c == '\n' || c == '\r')
-      break;
-  }
-  buf[i - 1] = '\0';
-  printf("|%s|\n", buf);
-  if (pos == -1) {
-    write(2, "Incorrect format: no space\n", 27);
-    exit(1);
-  }
-  buf[pos] = '\0';
-  int num1 = atoi(buf);
-  int num2 = atoi(buf + pos + 1);
-  add(num1, num2);
+  printf(add(100, -100) == 0 ? "Test 1 OK\n" : "Test 1 failed\n"); 
+  printf(add(0, -1) == -1 ? "Test 2 OK\n" : "Test 2 failed\n");
+  printf(add(-100, -100) == -200 ? "Test 3 OK\n" : "Test 3 failed\n");
+  printf(add(43210, 12345) == 55555 ? "Test 4 OK\n" : "Test 4 failed\n");
+  printf(add(132, -100111) == -99979 ? "Test 5 OK\n" : "Test 5 failed\n");
   exit(0);
 }

@@ -6,6 +6,5 @@ uint64 sys_add(void) {
     int a, b;
     argint(0, &a);
     argint(1, &b);
-    printf("%d\n", a + b);
-    return 0;
+    return a + b;
 }
