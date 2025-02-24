@@ -1,5 +1,7 @@
 .data
-    msg_err_space: .asciz "Incorrect format: no space\n"
+    msg_err_no_space: .asciz "Incorrect format: no space\n"
+    msg_err_too_many_space: .asciz "Incorrect format: More than one space\n"
+    msg_err_overflow: .asciz "Buffer overflow\n"
     msg_fmt: .asciz "|%s|\n"
     msg_fmt_int: .asciz "%d\n"
 
@@ -16,6 +18,43 @@ main:
     li a1, MAX_BUF_SIZE
     call gets
     
+    la a0, buf
+    li t0, 10
+    li t1, 0
+    li t3, 2
+    lb t2, 0(a0)
+    li t4, 0
+    li t5, 32
+    li t6, 0
+    li a1, 100
+    j check
+   
+check: 
+    beq t6, a1, maybe_overflow
+    beq t2, t0, find_n
+    bne t2, t5, check_no_space
+    addi t1, t1, 1
+    bge t1, t3, space_fail
+    addi a0, a0, 1
+    addi t6, t6, 1
+    lb t2, 0(a0)
+    j check
+
+check_no_space:
+    addi a0, a0, 1
+    addi t6, t6, 1
+    lb t2, 0(a0)
+    j check
+
+find_n:
+    sb t4, 0(a0)
+    j oper
+
+maybe_overflow:
+    beq t2, t0, find_n
+    j overflow
+    
+oper:
     la a0, msg_fmt
     la a1, buf
     call printf
@@ -58,11 +97,33 @@ done:
     li a7, 2
     li a0, 0
     ecall
+
+space_fail:
+    li a7, 16
+    li a0, 2
+    la a1, msg_err_too_many_space
+    li a2, 38
+    ecall
+    
+    li a7, 2
+    li a0, 1
+    ecall
+
+overflow:
+    li a7, 16
+    li a0, 2
+    la a1, msg_err_overflow
+    li a2, 16
+    ecall
+    
+    li a7, 2
+    li a0, 1
+    ecall
     
 fail:
     li a7, 16
     li a0, 2
-    la a1, msg_err_space
+    la a1, msg_err_no_space
     li a2, 27
     ecall
     
