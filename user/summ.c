@@ -7,6 +7,7 @@ int main(int argc, char *argv[]) {
   char c;
   int i;
   int pos = -1;
+  uint8 flag = 0x0;
   char buf[MAX_BUF_SIZE];
   for (i = 0;;) {
     if (i >= sizeof(buf)) {
@@ -14,8 +15,16 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
     int cc = read(0, &c, 1);
-    if (c == ' ')
-      pos = i;
+    if (c == ' '){
+        if (flag == 0x0){
+            pos = i;
+            flag = 0x1;
+        }
+        else {
+            write(2, "Incorrect format: More than one space\n", 38);
+            exit(1);
+        }
+    }
     if (cc != 1) {
       write(2, "Read fail\n", 10);
       exit(1);
