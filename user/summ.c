@@ -16,8 +16,6 @@ int main(int argc, char *argv[]) {
     }
     int cc = read(0, &c, 1);
     if (cc < 1) {
-      // write(2, "Read fail\n", 10);
-      // exit(1);
       break;
     }
     if (c == ' ') {
