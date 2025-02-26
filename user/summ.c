@@ -9,15 +9,16 @@ int main(int argc, char *argv[]) {
   int pos = -1;
   uint8 flag = 0x0;
   char buf[MAX_BUF_SIZE];
-  for (i = 0;;) {
+  for (i = 0; i < MAX_BUF_SIZE - 1; ++i) {
     if (i >= sizeof(buf)) {
       write(2, "Buffer overflow\n", 16);
       exit(1);
     }
     int cc = read(0, &c, 1);
     if (cc < 1) {
-      write(2, "Read fail\n", 10);
-      exit(1);
+      // write(2, "Read fail\n", 10);
+      // exit(1);
+      break;
     }
     if (c == ' ') {
       if (flag == 0x0) {
@@ -28,11 +29,11 @@ int main(int argc, char *argv[]) {
         exit(1);
       }
     }
-    buf[i++] = c;
+    buf[i] = c;
     if (c == '\n' || c == '\r')
       break;
   }
-  buf[i - 1] = '\0';
+  buf[i] = '\0';
   if (pos == -1) {
     write(2, "Incorrect format: no space\n", 27);
     exit(1);
