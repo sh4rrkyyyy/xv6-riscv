@@ -19,7 +19,7 @@ main:
     call gets
     
     la a0, buf
-    li t0, 10
+    li t0, 0
     li t1, 0
     li t3, 2
     lb t2, 0(a0)
@@ -27,6 +27,7 @@ main:
     li t5, 32
     li t6, 0
     li a1, 100
+    li a3, 10
     j check
    
 check: 
@@ -37,17 +38,21 @@ check:
     bge t1, t3, space_fail
     addi a0, a0, 1
     addi t6, t6, 1
+    mv a2, t2
     lb t2, 0(a0)
+    
     j check
 
 check_no_space:
     addi a0, a0, 1
     addi t6, t6, 1
+    mv a2, t2
     lb t2, 0(a0)
     j check
 
 find_n:
-    sb t4, 0(a0)
+    bne a2, a3, oper
+    sb t4, -1(a0)
     j oper
 
 maybe_overflow:
