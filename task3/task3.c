@@ -34,6 +34,8 @@ int main(int argc, char *argv[]) {
       fprintf(stderr, "Error: read error\n");
       exit(1);
     }
+    close(pfd[0]);
+    exit(0);
   } else {
     close(pfd[0]);
     for (int i = 1; i < argc; ++i) {
@@ -56,5 +58,6 @@ int main(int argc, char *argv[]) {
       exit(1);
     }
     wait(0);
+    exit(0);
   }
 }
