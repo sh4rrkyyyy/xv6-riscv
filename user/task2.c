@@ -36,7 +36,6 @@ int main(int argc, char *argv[]) {
                 ptr += ret;
                 len -= ret;
             }
-            write(pfd[1], argv[i], strlen(argv[i]));
             
             write(pfd[1], "\n", 1);
         }
