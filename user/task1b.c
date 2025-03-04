@@ -7,6 +7,7 @@ int main(int argc, char *argv[]){
     int pid = fork();
     if (pid < 0) {
         fprintf(2, "Error: fork error\n");
+        exit(1);
     }
     if (pid > 0) {
         int ppid = getpid();
@@ -14,12 +15,11 @@ int main(int argc, char *argv[]){
         int status, cpid;
         kill(pid);
         cpid = wait(&status);
-        printf("Identifier of process %d is %d, status is %d\n", pid, cpid, status);
+        printf("Identifier of completed process is %d, status is %d\n", cpid, status);
         exit(0);
     }
     else {
-        while(1){
-            sleep(100);
-        }
+        sleep(100);
+        exit(1);
     }
 }

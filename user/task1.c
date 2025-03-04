@@ -6,6 +6,7 @@ int main(int argc, char *argv[]) {
    int pid = fork();
    if (pid < 0) {
        fprintf(2, "Error: fork error\n");
+       exit(1);
    }
    else if (pid > 0) {
        int status;
