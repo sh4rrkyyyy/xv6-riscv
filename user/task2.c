@@ -1,6 +1,7 @@
 #include "kernel/types.h"
 #include "kernel/stat.h"
 #include "user/user.h"
+
 int main(int argc, char *argv[]) {
     int pfd[2];
     if (pipe(pfd) < 0) {
@@ -13,17 +14,30 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     else if (pid == 0) {
-        close(pfd[1]);
-        close(0);
-        dup(pfd[0]);
-        close(pfd[0]);
+      if (close(pfd[1]) < 0) {
+        fprintf(2, "Error: cannot close write-end in child\n");
+        exit(1);
+      }
+      if (close(0) < 0) {
+        fprintf(2, "Error: cannot close stdin in child\n");
+        exit(1); 
+      }
+      if (dup(pfd[0]) < 0) {
+        fprintf(2, "Error: dup failed\n");
+        exit(1);  
+      }
+      if (close(pfd[0]) < 0) {
+        fprintf(2, "Error: cannot close read-end in child\n");
+      }
         char *argv[] = {"/wc", 0};
         exec("/wc", argv);
         fprintf(2, "Error: exec failed\n");
         exit(1);
     }
     else {
-        close(pfd[0]);
+        if (close(pfd[0])) {
+          fprintf(2, "Error: cannot close read-end in parent\n");
+        }
         for (int i = 1; i < argc; ++i) {
             char* ptr = argv[i];
             int len = strlen(argv[i]);
@@ -36,15 +50,20 @@ int main(int argc, char *argv[]) {
                 ptr += ret;
                 len -= ret;
             }
-            
-            write(pfd[1], "\n", 1);
+            if (write(pfd[1], "\n", 1) != 1) {
+              fprintf(2, "Error: write new line failed\n");
+              exit(1);
+            }
         }
         int ret = close(pfd[1]);
         if (ret < 0) {
-            fprintf(2, "Error: cannot close channel\n");
+            fprintf(2, "Error: cannot close write-end in parent\n");
             exit(1);
         }
-        wait(0);
+        if (wait(0) < 0) {
+          fprintf(2, "Error: wait failed\n");
+          exit(1);
+        }
         exit(0);
     }
 }

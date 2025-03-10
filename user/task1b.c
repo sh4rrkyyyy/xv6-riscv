@@ -13,7 +13,10 @@ int main(int argc, char *argv[]){
         int ppid = getpid();
         printf("Parent's pid: %d, child's pid: %d\n", ppid, pid);
         int status, cpid;
-        kill(pid);
+        if (kill(pid) == -1) {
+          fprintf(2,"Error: kill error\n");
+          exit(1);
+        }
         cpid = wait(&status);
         printf("Identifier of completed process is %d, status is %d\n", cpid, status);
         exit(0);
