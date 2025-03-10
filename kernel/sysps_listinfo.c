@@ -39,31 +39,31 @@ uint64 sys_ps_listinfo(void) {
         acquire(&p->lock);
         if (p->state != UNUSED) {
             pi.pid = p->pid;
-            strncpy(pi.name, p->name, 16);
+            safestrcpy(pi.name, p->name, 16);
             
             if (p->state == USED) {
-                strncpy(pi.state, "USED", 16);
+                safestrcpy(pi.state, "USED", 16);
             }
             else if (p->state == SLEEPING) {
-                strncpy(pi.state, "SLEEPING", 16);
+                safestrcpy(pi.state, "SLEEPING", 16);
             }
             else if (p->state == RUNNABLE) {
-                strncpy(pi.state, "RUNNABLE", 16);
+                safestrcpy(pi.state, "RUNNABLE", 16);
             }
             else if (p->state == RUNNING) {
-                strncpy(pi.state, "RUNNING", 16);
+                safestrcpy(pi.state, "RUNNING", 16);
             }
             else {
-                strncpy(pi.state, "ZOMBIE", 16);
+                safestrcpy(pi.state, "ZOMBIE", 16);
             }
             
             acquire(&wait_lock);
             if (!p->parent) {
-                strncpy(pi.parent_name, "none", 16);
+                safestrcpy(pi.parent_name, "none", 16);
                 pi.parent_pid = -1;
             }
             else {
-                strncpy(pi.parent_name, p->parent->name, 16); 
+                safestrcpy(pi.parent_name, p->parent->name, 16); 
                 pi.parent_pid = p->parent->pid;
             }
             release(&wait_lock);
