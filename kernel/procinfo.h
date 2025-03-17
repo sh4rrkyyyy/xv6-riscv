@@ -1,4 +1,3 @@
-#pragma once
 
 struct procinfo {
   int pid;
