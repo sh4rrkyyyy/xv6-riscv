@@ -10,7 +10,6 @@
 #include "mutex.h"
 #include "proc.h"
 
-struct mutex *mutex[MUTEX_CNT];
 extern struct file ftable[NFILE];
 extern int printf(char *fmt, ...);
 
