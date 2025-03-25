@@ -28,7 +28,7 @@ struct file *mutexalloc(void) {
     return 0;
   }
   initsleeplock(&mtx->lock, "mutex");
-
+  initlock(&mtx->splock, "mutex");
   mtx->owner_pid = 0;
   f->mutex = mtx;
   f->type = FD_MUTEX;

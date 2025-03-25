@@ -38,7 +38,9 @@ uint64 sys_mutex_lock(void) {
   int pid = myproc()->pid;
   release(&myproc()->lock);
   acquiresleep(&mtx->lock);
+  acquire(&mtx->splock);
   mtx->owner_pid = pid;
+  release(&mtx->splock);
   return 0;
 }
 
@@ -51,13 +53,16 @@ uint64 sys_mutex_unlock(void) {
     return -1;
   }
   struct file *f = myproc()->ofile[fd];
+  int pid = myproc()->pid;
+  release(&myproc()->lock);
   struct mutex *mtx = f->mutex;
-  if (mtx->owner_pid != myproc()->pid) {
-    release(&myproc()->lock);
+  acquire(&mtx->splock);
+  if (mtx->owner_pid != pid) {
+    release(&mtx->splock);
     return -1;
   }
-  release(&myproc()->lock);
   mtx->owner_pid = 0;
+  release(&mtx->splock);
   releasesleep(&mtx->lock);
   return 0;
 }
@@ -71,11 +76,16 @@ uint64 sys_mutex_close(void) {
     return -1;
   } 
   struct file *f = myproc()->ofile[fd];
+  int pid = myproc()->pid;
+  release(&myproc()->lock);
   struct mutex *mtx = f->mutex;
-  if (mtx->owner_pid != 0 && mtx->owner_pid != myproc()->pid) {
-    release(&myproc()->lock);
+  acquire(&mtx->splock);
+  if (mtx->owner_pid != 0 && mtx->owner_pid != pid) {
+    release(&mtx->splock);
     return -1;
   } 
+  release(&mtx->splock);
+  acquire(&myproc()->lock);
   myproc()->ofile[fd] = 0;
   release(&myproc()->lock);
   fileclose(f);
