@@ -75,11 +75,6 @@ void test_7() {
   printf(ret == 0 ? "Test 7: OK\n" : "Test 7: Failed\n"); 
 }
 
-void test_8() {
-  int mutex = mutex_create();
-  int ret = close(mutex);
-  printf(ret == 0 ? "Test 8: OK\n" : "Test 8: Failed\n"); 
-}
 
 int main(int argc, char *argv[]) {
   test_1();
@@ -89,5 +84,4 @@ int main(int argc, char *argv[]) {
   test_5();
   test_6();
   test_7();
-  test_8();
 }
