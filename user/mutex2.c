@@ -5,7 +5,7 @@ void proc_print(int argc, char *argv[], int mutex) {
   for (int i = 0; i < argc; ++i) {
     for (int j = 0; j < strlen(argv[i]); ++j) {
       mutex_lock(mutex);
-      printf("pid: %d, arg: %d, char: %s\n", getpid(), j, (char[]){argv[i][j], 0});
+      printf("pid: %d, arg: %d, char: %s\n", getpid(), i, (char[]){argv[i][j], 0});
       mutex_unlock(mutex);
     }
   }

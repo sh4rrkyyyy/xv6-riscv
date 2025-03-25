@@ -29,7 +29,7 @@ struct file *mutexalloc(void) {
   }
   initsleeplock(&mtx->lock, "mutex");
   initlock(&mtx->splock, "mutex");
-  mtx->owner_pid = 0;
+  mtx->owner_pid = -1;
   f->mutex = mtx;
   f->type = FD_MUTEX;
   f->ref = 1;
@@ -40,7 +40,6 @@ struct file *mutexalloc(void) {
 void mutexclose(struct file *f) {
   if (f->type == FD_MUTEX) {
     struct mutex *mtx = f->mutex;
-    releasesleep(&mtx->lock);
     kfree(mtx);
     printf("memory for mutex freed (in mutexclose)\n");
   }

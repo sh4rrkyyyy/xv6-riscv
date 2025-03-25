@@ -61,7 +61,7 @@ uint64 sys_mutex_unlock(void) {
     release(&mtx->splock);
     return -1;
   }
-  mtx->owner_pid = 0;
+  mtx->owner_pid = -1;
   release(&mtx->splock);
   releasesleep(&mtx->lock);
   return 0;
@@ -80,7 +80,7 @@ uint64 sys_mutex_close(void) {
   release(&myproc()->lock);
   struct mutex *mtx = f->mutex;
   acquire(&mtx->splock);
-  if (mtx->owner_pid != 0 && mtx->owner_pid != pid) {
+  if (mtx->owner_pid != -1 && mtx->owner_pid != pid) {
     release(&mtx->splock);
     return -1;
   } 

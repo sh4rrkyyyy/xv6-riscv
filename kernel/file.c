@@ -76,8 +76,14 @@ fileclose(struct file *f)
   if (ff.type == FD_MUTEX) {
     struct mutex *mtx = ff.mutex;
     acquire(&mtx->splock);
-    mtx->owner_pid = 0;
-    release(&mtx->splock);
+    if (mtx->owner_pid != -1) {
+      mtx->owner_pid = -1;
+      release(&mtx->splock);
+      releasesleep(&mtx->lock);
+    }
+    else {
+      release(&mtx->splock);
+    }
     mutexclose(&ff);
   }
 
