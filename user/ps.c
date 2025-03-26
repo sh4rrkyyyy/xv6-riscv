@@ -7,6 +7,10 @@ int main(int argc, char* argv[]) {
     int sz = 1;
     int cnt = 0;
     struct procinfo *pi = (struct procinfo *)malloc(sizeof(struct procinfo) * sz);
+    if (pi == 0) {
+      fprintf(2, "Error: malloc failed\n");
+      exit(1);
+    }
     while (cnt < MAXX) {
       cnt++;
       int ret = ps_listinfo(pi, sz);
@@ -14,6 +18,10 @@ int main(int argc, char* argv[]) {
         free(pi);
         sz *= 2;
         pi = (struct procinfo *)malloc(sizeof(struct procinfo) * sz);
+        if (pi == 0) {
+          fprintf(2, "Error: malloc failed\n");
+          exit(1);
+        }
       }
       else if (ret == -1) {
         free(pi);
@@ -23,7 +31,22 @@ int main(int argc, char* argv[]) {
       else {
         printf("pid | name | state | parent_pid | parent_name\n");
         for (int i = 0; i < ret; ++i) {
-            printf("%d %s %s %d %s\n", pi[i].pid, pi[i].name, pi[i].state, pi[i].parent_pid, pi[i].parent_name);
+          printf("%d %s ", pi[i].pid, pi[i].name);
+          if (pi[i].state == UNUSED_STATE) {
+            printf("%s ", "unused");
+          } else if (pi[i].state == USED_STATE) {
+            printf("%s ", "used");
+          } else if (pi[i].state == SLEEPING_STATE) {
+            printf("%s ", "sleeping");
+          } else if (pi[i].state == RUNNABLE_STATE) {
+            printf("%s ", "runnable");
+          } else if (pi[i].state == RUNNING_STATE) {
+            printf("%s ", "running");
+          } else if (pi[i].state == ZOMBIE_STATE ){
+            printf("%s ", "zombie");
+          }
+          printf("%d %s\n", pi[i].parent_pid, pi[i].parent_name);
+            
         } 
         free(pi);
         break;

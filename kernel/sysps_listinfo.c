@@ -20,59 +20,57 @@ uint64 sys_ps_listinfo(void) {
     
     argaddr(0, &ptr);
     argint(1, &lim);
-    
-    for (p = proc; p < &proc[NPROC]; ++p) {
-        acquire(&p->lock);
-        if (p->state != UNUSED) {
-            cnt++;
-        }
-        release(&p->lock);
-    }
     if (!ptr) {
-        return cnt;
+      for (p = proc; p < &proc[NPROC]; ++p) {
+          acquire(&p->lock);
+          if (p->state != UNUSED && p->state != USED) {
+              cnt++;
+          }
+          release(&p->lock);
+      }
+      return cnt;
     }
-    if (cnt > lim) {
-        return -2;
-    }
-    cnt = 0;
     for (p = proc; p < &proc[NPROC]; ++p) {
         acquire(&p->lock);
-        if (p->state != UNUSED) {
-            pi.pid = p->pid;
-            safestrcpy(pi.name, p->name, 16);
-            
-            if (p->state == USED) {
-                safestrcpy(pi.state, "USED", 16);
+        if (p->state != UNUSED && p->state != USED) {
+            if (++cnt > lim) {
+              release(&p->lock);
+              return -2;
             }
-            else if (p->state == SLEEPING) {
-                safestrcpy(pi.state, "SLEEPING", 16);
+            pi.pid = p->pid;
+            safestrcpy(pi.name, p->name, sizeof(pi.name));
+            if (p->state == SLEEPING) {
+              pi.state = SLEEPING_STATE;
             }
             else if (p->state == RUNNABLE) {
-                safestrcpy(pi.state, "RUNNABLE", 16);
+              pi.state = RUNNABLE_STATE;
             }
             else if (p->state == RUNNING) {
-                safestrcpy(pi.state, "RUNNING", 16);
+              pi.state = RUNNING_STATE;
             }
             else {
-                safestrcpy(pi.state, "ZOMBIE", 16);
+              pi.state = ZOMBIE_STATE;
             }
             
             acquire(&wait_lock);
             if (!p->parent) {
-                safestrcpy(pi.parent_name, "none", 16);
+                safestrcpy(pi.parent_name, "none", sizeof(pi.parent_name));
                 pi.parent_pid = -1;
+                release(&wait_lock);
             }
             else {
-                safestrcpy(pi.parent_name, p->parent->name, 16); 
-                pi.parent_pid = p->parent->pid;
+                struct proc *parent = p->parent;
+                acquire(&parent->lock);
+                release(&wait_lock);
+                safestrcpy(pi.parent_name, parent->name, sizeof(pi.parent_name)); 
+                pi.parent_pid = parent->pid;
+                release(&parent->lock);
             }
-            release(&wait_lock);
             if (copyout(myproc()->pagetable, ptr, (char *)&(pi), sizeof(pi)) < 0) {
                 release(&p->lock);
                 return -1;
             }
             ptr += sizeof(pi);
-            cnt++;
         }
         release(&p->lock);
     }
