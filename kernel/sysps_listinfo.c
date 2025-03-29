@@ -56,16 +56,15 @@ uint64 sys_ps_listinfo(void) {
             if (!p->parent) {
                 safestrcpy(pi.parent_name, "none", sizeof(pi.parent_name));
                 pi.parent_pid = -1;
-                release(&wait_lock);
             }
             else {
                 struct proc *parent = p->parent;
                 acquire(&parent->lock);
-                release(&wait_lock);
                 safestrcpy(pi.parent_name, parent->name, sizeof(pi.parent_name)); 
                 pi.parent_pid = parent->pid;
                 release(&parent->lock);
             }
+            release(&wait_lock);
             if (copyout(myproc()->pagetable, ptr, (char *)&(pi), sizeof(pi)) < 0) {
                 release(&p->lock);
                 return -1;
