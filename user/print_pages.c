@@ -14,10 +14,12 @@ int main(int argc, char *argv[]) {
   printf("\n");
   clear_flags(0, 0, 0);
   print_pages(0, 0, 0);
+  printf("\n");
   
   
-  char *ret = sbrk(10000);
-  if (ret == (char*)-1) {
+  char *b = (char *)malloc(10000 * sizeof(char));
+  if (b == 0) {
+    printf("Error: malloc failed\n");
     exit(1);
   }
   printf("PRINT AFTER ALLOCATION IN HEAP\n");
@@ -27,10 +29,7 @@ int main(int argc, char *argv[]) {
   printf("\n");
 
   
-  ret = sbrk(-10000);
-  if (ret == (char*)-1) {
-    exit(1);
-  }
+  free(b);
   
   printf("PRINT AFTER FREE\n");
   printf("=============================\n");
@@ -99,5 +98,4 @@ int main(int argc, char *argv[]) {
   printf("\n");
   print_pages(0, 0, 3);
   printf("\n");
-  
 }
