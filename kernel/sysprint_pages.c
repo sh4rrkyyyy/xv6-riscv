@@ -33,12 +33,12 @@ void print_pages(unsigned long pt_idx, pagetable_t pt, int mask, int idx,
     if (level == 3) {
       printf("..................");
     }
-    if (idx < 10) {
-      printf("0x00%d -> %p %s\n", idx, pt, flags);
-    } else if (idx < 100) {
-      printf("0x0%d -> %p %s\n", idx, pt, flags);
+    if (idx < 16) {
+      printf("0x00%lx -> %p %s\n", (uint64)idx, pt, flags);
+    } else if (idx < 256) {
+      printf("0x0%lx -> %p %s\n", (uint64)idx, pt, flags);
     } else {
-      printf("0x%d -> %p %s\n", idx, pt, flags);
+      printf("0x%lx -> %p %s\n", (uint64)idx, pt, flags);
     }
   }
 }
