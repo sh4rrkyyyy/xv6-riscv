@@ -63,6 +63,19 @@ int main(int argc, char *argv[]) {
   print_pages(0, 0, 0);
   printf("\n");
   
+  cnt = a[1];
+  printf("PRINT AFTER READ IN GLOBAL\n");
+  printf("=============================\n");
+  printf("\n");
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  printf("CLEAR FLAGS\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, 0);
+  print_pages(0, 0, 0);
+  printf("\n");
   
   int x = 10;
   a[10] = x; 
@@ -72,6 +85,27 @@ int main(int argc, char *argv[]) {
   print_pages(0, 0, 0);
   printf("\n");
  
+  printf("CLEAR FLAGS\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, 0);
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  
+  a[10] = cnt; 
+  printf("PRINT AFTER WRITE FROM GLOBAL\n");
+  printf("=============================\n");
+  printf("\n");
+  print_pages(0, 0, 0);
+  printf("\n");
+ 
+  printf("CLEAR FLAGS\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, 0);
+  print_pages(0, 0, 0);
+  printf("\n");
   
   printf("PRINT ONLY PAGES FOR BUFFER\n");
   printf("=============================\n");
