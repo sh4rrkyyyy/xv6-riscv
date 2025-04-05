@@ -66,6 +66,19 @@ fileclose(struct file *f)
   if(f->ref < 1)
     panic("fileclose");
   if(--f->ref > 0){
+    if (f->type == FD_MUTEX) {
+      struct proc *p = myproc();
+      int pid;
+      acquire(&p->lock);
+      pid = p->pid;
+      release(&p->lock);
+      acquire(&f->mutex->splock);
+      if (pid == f->mutex->owner_pid) {
+        releasesleep(&f->mutex->lock);
+        f->mutex->owner_pid = -1;
+      }
+      release(&f->mutex->splock);
+    }
     release(&ftable.lock);
     return;
   }
@@ -74,16 +87,6 @@ fileclose(struct file *f)
   f->type = FD_NONE;
   release(&ftable.lock);
   if (ff.type == FD_MUTEX) {
-    struct mutex *mtx = ff.mutex;
-    acquire(&mtx->splock);
-    if (mtx->owner_pid != -1) {
-      mtx->owner_pid = -1;
-      release(&mtx->splock);
-      releasesleep(&mtx->lock);
-    }
-    else {
-      release(&mtx->splock);
-    }
     mutexclose(&ff);
   }
 

@@ -21,7 +21,7 @@ void test_3() {
     fprintf(2, "Fork error\n");
   }
   if (pid == 0) {
-    int ret = mutex_close(mutex);
+    int ret = close(mutex);
     printf(ret == -1 ? "Test 3: OK\n" : "Test 3: Failed\n");
     exit(0);
   }
@@ -34,7 +34,7 @@ void test_3() {
 void test_4() {
   int mutex = mutex_create();
   mutex_lock(mutex);
-  int ret = mutex_close(mutex);
+  int ret = close(mutex);
   printf(ret == 0 ? "Test 4: OK\n" : "Test 4: Failed\n");
 }
 void test_5() {
@@ -71,7 +71,7 @@ void test_6() {
 }
 void test_7() {
   int mutex = mutex_create();
-  int ret = mutex_close(mutex);
+  int ret = close(mutex);
   printf(ret == 0 ? "Test 7: OK\n" : "Test 7: Failed\n"); 
 }
 

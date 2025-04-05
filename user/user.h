@@ -25,7 +25,6 @@ int uptime(void);
 int mutex_create(void);
 int mutex_lock(int);
 int mutex_unlock(int);
-int mutex_close(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

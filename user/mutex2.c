@@ -51,6 +51,6 @@ int main(int argc, char *argv[]) {
     proc_print(argc, argv, mutex);
     wait(0);
   }
-  mutex_close(mutex);
+  close(mutex);
   
 }

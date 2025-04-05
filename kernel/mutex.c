@@ -27,6 +27,7 @@ struct file *mutexalloc(void) {
     fileclose(f);
     return 0;
   }
+  printf("mutex allocated with address %p\n", mtx);
   initsleeplock(&mtx->lock, "mutex");
   initlock(&mtx->splock, "mutex");
   mtx->owner_pid = -1;
@@ -41,7 +42,7 @@ void mutexclose(struct file *f) {
   if (f->type == FD_MUTEX) {
     struct mutex *mtx = f->mutex;
     kfree(mtx);
-    printf("memory for mutex freed (in mutexclose)\n");
+    printf("memory for mutex %p freed (in mutexclose)\n", mtx);
   }
   f->type = FD_NONE;
 }

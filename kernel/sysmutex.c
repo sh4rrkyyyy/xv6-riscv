@@ -67,29 +67,5 @@ uint64 sys_mutex_unlock(void) {
   return 0;
 }
 
-uint64 sys_mutex_close(void) {
-  int fd;
-  argint(0, &fd);
-  acquire(&myproc()->lock);
-  if (fd < 0 || fd >= NOFILE || myproc()->ofile[fd] == 0 || myproc()->ofile[fd]->type != FD_MUTEX) {
-    release(&myproc()->lock);
-    return -1;
-  } 
-  struct file *f = myproc()->ofile[fd];
-  int pid = myproc()->pid;
-  release(&myproc()->lock);
-  struct mutex *mtx = f->mutex;
-  acquire(&mtx->splock);
-  if (mtx->owner_pid != -1 && mtx->owner_pid != pid) {
-    release(&mtx->splock);
-    return -1;
-  } 
-  release(&mtx->splock);
-  acquire(&myproc()->lock);
-  myproc()->ofile[fd] = 0;
-  release(&myproc()->lock);
-  fileclose(f);
-  return 0;
-}
 
 
