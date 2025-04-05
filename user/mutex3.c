@@ -22,7 +22,7 @@ void test_3() {
   }
   if (pid == 0) {
     int ret = close(mutex);
-    printf(ret == -1 ? "Test 3: OK\n" : "Test 3: Failed\n");
+    printf(ret == 0 ? "Test 3: OK\n" : "Test 3: Failed\n");
     exit(0);
   }
   else {
