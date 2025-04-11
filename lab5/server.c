@@ -124,7 +124,6 @@ void clean(FILE *f, int fd, config_t *config) {
   exit(EXIT_SUCCESS);
 }
 void parse_args(int argc, char **argv, config_t *config) {
-  // ./test -fifo NAME -mode foreground/daemon -file NAME
   if (argc < 3) {
     fprintf(stderr, "Too few args\n");
     exit(EXIT_FAILURE);
@@ -269,6 +268,10 @@ int main(int argc, char **argv) {
       } else if (len == 0) {
         if (is_sigint) {
           clean(f, fd, &config);
+        }
+        if (fd != -1 && close(fd) < 0) {
+          perror("close");
+          exit(EXIT_FAILURE);
         }
         break;
       } else {
