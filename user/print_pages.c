@@ -1,6 +1,9 @@
 #include "kernel/types.h"
 #include "user/user.h"
+#define maskA 1 << 1
+#define maskD 1
 int cnt = 10;
+int cnt2 = 15;
 int main(int argc, char *argv[]) {
   printf("INIT PRINT\n");
   printf("=============================\n");
@@ -12,7 +15,7 @@ int main(int argc, char *argv[]) {
   printf("CLEAR FLAGS\n");
   printf("=============================\n");
   printf("\n");
-  clear_flags(0, 0, 0);
+  clear_flags(0, 0, maskA | maskD);
   print_pages(0, 0, 0);
   printf("\n");
   
@@ -28,6 +31,71 @@ int main(int argc, char *argv[]) {
   print_pages(0, 0, 0);
   printf("\n");
 
+  printf("CLEAR FLAGS\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, maskA | maskD);
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  int c = b[1];
+  (void)c;
+  printf("PRINT AFTER READ (HEAP)\n");
+  printf("=============================\n");
+  printf("\n");
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  printf("CLEAR FLAGS\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, maskA | maskD);
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  cnt2 = b[1];
+  printf("PRINT AFTER READ IN GLOBAL (HEAP)\n");
+  printf("=============================\n");
+  printf("\n");
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  printf("CLEAR FLAGS\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, maskA | maskD);
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  int y = 10;
+  b[10] = y; 
+  printf("PRINT AFTER WRITE (HEAP)\n");
+  printf("=============================\n");
+  printf("\n");
+  print_pages(0, 0, 0);
+  printf("\n");
+ 
+  printf("CLEAR FLAGS\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, maskA | maskD);
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  
+  b[10] = cnt2; 
+  printf("PRINT AFTER WRITE FROM GLOBAL (HEAP)\n");
+  printf("=============================\n");
+  printf("\n");
+  print_pages(0, 0, 0);
+  printf("\n");
+ 
+  printf("CLEAR FLAGS\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, maskA | maskD);
+  print_pages(0, 0, 0);
+  printf("\n");
   
   free(b);
   
@@ -41,7 +109,7 @@ int main(int argc, char *argv[]) {
   printf("CLEAR FLAGS\n");
   printf("=============================\n");
   printf("\n");
-  clear_flags(0, 0, 0);
+  clear_flags(0, 0, maskA | maskD);
   print_pages(0, 0, 0);
   printf("\n");
  
@@ -59,7 +127,7 @@ int main(int argc, char *argv[]) {
   printf("CLEAR FLAGS\n");
   printf("=============================\n");
   printf("\n");
-  clear_flags(0, 0, 0);
+  clear_flags(0, 0, maskA | maskD);
   print_pages(0, 0, 0);
   printf("\n");
   
@@ -73,7 +141,7 @@ int main(int argc, char *argv[]) {
   printf("CLEAR FLAGS\n");
   printf("=============================\n");
   printf("\n");
-  clear_flags(0, 0, 0);
+  clear_flags(0, 0, maskA | maskD);
   print_pages(0, 0, 0);
   printf("\n");
   
@@ -88,7 +156,7 @@ int main(int argc, char *argv[]) {
   printf("CLEAR FLAGS\n");
   printf("=============================\n");
   printf("\n");
-  clear_flags(0, 0, 0);
+  clear_flags(0, 0, maskA | maskD);
   print_pages(0, 0, 0);
   printf("\n");
   
@@ -103,7 +171,7 @@ int main(int argc, char *argv[]) {
   printf("CLEAR FLAGS\n");
   printf("=============================\n");
   printf("\n");
-  clear_flags(0, 0, 0);
+  clear_flags(0, 0, maskA | maskD);
   print_pages(0, 0, 0);
   printf("\n");
   
@@ -132,4 +200,60 @@ int main(int argc, char *argv[]) {
   printf("\n");
   print_pages(0, 0, 3);
   printf("\n");
+  
+  a[10] = cnt;
+  x = a[10];
+  printf("PRINT PAGES\n");
+  printf("=============================\n");
+  printf("\n");
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  printf("CLEAR WITH ZERO MASK\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, 0);
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  printf("CLEAR ONLY FLAGS A\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, maskA);
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  a[10] = cnt;
+  x = a[10];
+  
+  printf("PRINT PAGES\n");
+  printf("=============================\n");
+  printf("\n");
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  printf("CLEAR ONLY FLAGS D\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, maskD);
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  a[10] = cnt;
+  x = a[10];
+  
+  printf("PRINT PAGES\n");
+  printf("=============================\n");
+  printf("\n");
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  printf("CLEAR FLAGS A and D\n");
+  printf("=============================\n");
+  printf("\n");
+  clear_flags(0, 0, maskA | maskD);
+  print_pages(0, 0, 0);
+  printf("\n");
+  
+  
 }

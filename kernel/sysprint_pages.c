@@ -18,7 +18,8 @@
 #define true 1
 #define fPrint 0
 #define fClear 1
-
+#define maskA 1 << 1
+#define maskD 1
 extern struct proc proc[NPROC];
 void print_pages(unsigned long pt_idx, pagetable_t pt, int mask, int idx,
                  int level) {
@@ -106,12 +107,16 @@ int walking(uint64 ptr, int sz, int mask, bool flag) {
             print_pages(pt2[k], pt3, mask, k, 3);
           }
         } else {
-          pt0[i] &= ~(unsigned long)PTE_A;
-          pt1[j] &= ~(unsigned long)PTE_A;
-          pt2[k] &= ~(unsigned long)PTE_A;
-          pt0[i] &= ~(unsigned long)PTE_D;
-          pt1[j] &= ~(unsigned long)PTE_D;
-          pt2[k] &= ~(unsigned long)PTE_D;
+          if (mask & maskA) {
+            pt0[i] &= ~(unsigned long)PTE_A;
+            pt1[j] &= ~(unsigned long)PTE_A;
+            pt2[k] &= ~(unsigned long)PTE_A; 
+          }
+          if (mask & maskD) {
+            pt0[i] &= ~(unsigned long)PTE_D;
+            pt1[j] &= ~(unsigned long)PTE_D;
+            pt2[k] &= ~(unsigned long)PTE_D; 
+          }
         }
       }
     }
