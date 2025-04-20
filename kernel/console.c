@@ -56,10 +56,9 @@ struct {
 // user write()s to the console go here.
 //
 int
-consolewrite(int user_src, uint64 src, int n)
+consolewrite(int minor, int user_src, uint64 src, int n)
 {
   int i;
-
   for(i = 0; i < n; i++){
     char c;
     if(either_copyin(&c, user_src, src+i, 1) == -1)
@@ -77,7 +76,7 @@ consolewrite(int user_src, uint64 src, int n)
 // or kernel address.
 //
 int
-consoleread(int user_dst, uint64 dst, int n)
+consoleread(int minor, int user_dst, uint64 dst, int n)
 {
   uint target;
   int c;
