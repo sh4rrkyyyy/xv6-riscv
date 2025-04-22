@@ -64,7 +64,7 @@ int devread(int minor, int user_dst, uint64 dst, int n) {
   return -1;
 }
 
-int devwrite(int minor, int user_src, uint64 src, int n) {
+int devwrite(int minor, int user_src, uint64 src, int n) { 
   if (n < 0) {
     return -1;
   }
