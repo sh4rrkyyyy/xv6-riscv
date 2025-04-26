@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,15 +52,30 @@ void print_stat(FILE *f, size_t cnt, size_t *vol, size_t cnt_alrm) {
   fflush(f);
 }
 
-void handle_sigint(int sig) { sigint_flag = 1; }
+void handle_sigint(int sig) {
+  (void)sig;
+  sigint_flag = 1;
+}
 
-void handle_sigterm(int sig) { sigterm_flag = 1; }
+void handle_sigterm(int sig) {
+  (void)sig;
+  sigterm_flag = 1;
+}
 
-void handle_sigalrm(int sig) { sigalrm_flag = 1; }
+void handle_sigalrm(int sig) {
+  (void)sig;
+  sigalrm_flag = 1;
+}
 
-void handle_sigusr1(int sig) { sigusr1_flag = 1; }
+void handle_sigusr1(int sig) {
+  (void)sig;
+  sigusr1_flag = 1;
+}
 
-void handle_sighup(int sig) { sighup_flag = 1; }
+void handle_sighup(int sig) {
+  (void)sig;
+  sighup_flag = 1;
+}
 
 void set_signals() {
   struct sigaction sa_int = {.sa_handler = handle_sigint};
@@ -99,8 +115,13 @@ void daemonize(FILE **f, size_t cnt, size_t *vol, size_t cnt_alrm,
   }
   fprintf(*f, "DAEMONIZE\n");
   print_stat(*f, cnt, vol, cnt_alrm);
+  if (daemon(1, 0) == -1) {
+    perror("daemon");
+    exit(EXIT_FAILURE);
+  }
   dup2(fileno(new_f), STDOUT_FILENO);
   dup2(fileno(new_f), STDERR_FILENO);
+  alarm(PERIOD);
   if (fclose(*f) < 0) {
     perror("fclose");
     exit(EXIT_FAILURE);
@@ -151,7 +172,27 @@ void parse_args(int argc, char **argv, config_t *config) {
     }
   }
 }
-
+void handle_sigs(FILE **f, size_t cnt, size_t *vol, size_t *cnt_alrm, int fd,
+                 config_t *config, const char *ctx) {
+  if (sigterm_flag) {
+    fprintf(*f, "SIGTERM received in %s\n", ctx);
+    print_stat(*f, cnt, vol, *cnt_alrm);
+    clean(*f, fd, config);
+  } else if (sigusr1_flag) {
+    print_stat(*f, cnt, vol, *cnt_alrm);
+    sigusr1_flag = 0;
+  } else if (sigalrm_flag) {
+    ++cnt_alrm;
+    sigalrm_flag = 0;
+    fprintf(*f, "SIGALRM received in %s\n", ctx);
+    fflush(*f);
+    alarm(PERIOD);
+  } else if (sighup_flag && !(config->mode == DAEMON)) {
+    sighup_flag = 0;
+    daemonize(f, cnt, vol, *cnt_alrm, config);
+    config->mode = DAEMON;
+  }
+}
 int main(int argc, char **argv) {
   config_t config = {.mode = FOREGROUND,
                      .fifo_name = DEFAULT_FIFO_NAME,
@@ -202,27 +243,12 @@ int main(int argc, char **argv) {
     int fd;
     if ((fd = open(config.fifo_name, O_RDONLY)) == -1) {
       if (errno == EINTR) {
-        if (sigterm_flag) {
-          fprintf(f, "SIGTERM received in open\n");
-          print_stat(f, cnt, &vol, cnt_alrm);
-          clean(f, fd, &config);
-        } else if (sigint_flag) {
+        if (sigint_flag) {
           fprintf(f, "SIGINT received in open\n");
           print_stat(f, cnt, &vol, cnt_alrm);
           clean(f, fd, &config);
-        } else if (sigusr1_flag) {
-          print_stat(f, cnt, &vol, cnt_alrm);
-          sigusr1_flag = 0;
-        } else if (sigalrm_flag) {
-          ++cnt_alrm;
-          sigalrm_flag = 0;
-          fprintf(f, "SIGALRM received in open\n");
-          fflush(f);
-          alarm(PERIOD);
-        } else if (sighup_flag && !(config.mode == DAEMON)) {
-          sighup_flag = 0;
-          daemonize(&f, cnt, &vol, cnt_alrm, &config);
-          config.mode = DAEMON;
+        } else {
+          handle_sigs(&f, cnt, &vol, &cnt_alrm, fd, &config, "open");
         }
         continue;
       } else {
@@ -237,28 +263,13 @@ int main(int argc, char **argv) {
       len = read(fd, buf, BUFSIZE);
       if (len < 0) {
         if (errno == EINTR) {
-          if (sigterm_flag) {
-            fprintf(f, "SIGTERM received in read\n");
-            print_stat(f, cnt, &vol, cnt_alrm);
-            clean(f, fd, &config);
-          } else if (sigint_flag) {
+          if (sigint_flag) {
             fprintf(f, "SIGINT received in read\n");
             sigint_flag = 0;
             print_stat(f, cnt, &vol, cnt_alrm);
             is_sigint = true;
-          } else if (sigusr1_flag) {
-            print_stat(f, cnt, &vol, cnt_alrm);
-            sigusr1_flag = 0;
-          } else if (sigalrm_flag) {
-            ++cnt_alrm;
-            sigalrm_flag = 0;
-            fprintf(f, "SIGALRM received in read\n");
-            fflush(f);
-            alarm(PERIOD);
-          } else if (sighup_flag && !(config.mode == DAEMON)) {
-            sighup_flag = 0;
-            daemonize(&f, cnt, &vol, cnt_alrm, &config);
-            config.mode = DAEMON;
+          } else { 
+            handle_sigs(&f, cnt, &vol, &cnt_alrm, fd, &config, "read");
           }
           continue;
         } else {
