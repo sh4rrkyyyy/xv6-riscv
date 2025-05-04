@@ -114,6 +114,7 @@ void daemonize(FILE **f, size_t cnt, size_t *vol, size_t cnt_alrm,
     exit(EXIT_FAILURE);
   }
   fprintf(*f, "DAEMONIZE\n");
+  fflush(*f);
   print_stat(*f, cnt, vol, cnt_alrm);
   if (daemon(1, 0) == -1) {
     perror("daemon");
@@ -182,7 +183,7 @@ void handle_sigs(FILE **f, size_t cnt, size_t *vol, size_t *cnt_alrm, int fd,
     print_stat(*f, cnt, vol, *cnt_alrm);
     sigusr1_flag = 0;
   } else if (sigalrm_flag) {
-    ++cnt_alrm;
+    ++(*cnt_alrm);
     sigalrm_flag = 0;
     fprintf(*f, "SIGALRM received in %s\n", ctx);
     fflush(*f);
@@ -215,6 +216,7 @@ int main(int argc, char **argv) {
       struct stat st;
       if (stat(config.fifo_name, &st) == -1) {
         perror("stat");
+        exit(EXIT_FAILURE);
       }
       if (!S_ISFIFO(st.st_mode)) {
         fprintf(stderr,
@@ -239,13 +241,15 @@ int main(int argc, char **argv) {
   size_t cnt_alrm = 0;
   size_t vol = 0;
   while (1) {
+    int fd = -1;
+    handle_sigs(&f, cnt, &vol, &cnt_alrm, fd, &config, "main loop");
     ++cnt;
-    int fd;
     if ((fd = open(config.fifo_name, O_RDONLY)) == -1) {
       if (errno == EINTR) {
         if (sigint_flag) {
           fprintf(f, "SIGINT received in open\n");
           print_stat(f, cnt, &vol, cnt_alrm);
+          sigint_flag = 0;
           clean(f, fd, &config);
         } else {
           handle_sigs(&f, cnt, &vol, &cnt_alrm, fd, &config, "open");
